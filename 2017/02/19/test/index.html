@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/02/19/test/index.html">
 <meta property="og:site_name" content="夏木">
 <meta property="og:description" content="这是我在学习mit分布式公开课6.824的Lab 1实现，该课程这几年改为用go实现。mit 6.824是mit关于分布式方面的课程。">
-<meta property="og:updated_time" content="2017-02-20T01:39:11.000Z">
+<meta property="og:updated_time" content="2017-02-20T02:18:57.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mit 6.825 Lab 1">
 <meta name="twitter:description" content="这是我在学习mit分布式公开课6.824的Lab 1实现，该课程这几年改为用go实现。mit 6.824是mit关于分布式方面的课程。">
@@ -357,14 +357,14 @@
 
       
         <p>这是我在学习mit分布式公开课6.824的Lab 1实现，该课程这几年改为用go实现。mit 6.824是mit关于分布式方面的课程。<br><a id="more"></a><br>luchukun1993@gmail.com</p>
-<h4 id="Lab1共有五个部分-需要阅读MapReduce的原始论文。"><a href="#Lab1共有五个部分-需要阅读MapReduce的原始论文。" class="headerlink" title="Lab1共有五个部分,需要阅读MapReduce的原始论文。"></a>Lab1共有五个部分,需要阅读MapReduce的<a href="/mapreduce.pdf">原始论文</a>。</h4><p>论文不是很难理解，mapreduce原理很简单，感觉类似java 7的fork/join框架。我想要实现这样一个可以用于生产环境的系统更多是关于工程方面的问题。在这里想感慨一下，前几日参加阿里的宣讲会，一学长给我介绍了一下阿里的四代架构，貌似是04的第一代架构还是很原始的形式。那时候google已经做出了map/reduce的第一代实现了。不过今年双十一，阿里能处理的并发量已经达到12w笔交易/s了。经过十几年，中国的技术已经有了很大的进步了。</p>
-<h4 id="Part1-Map-Reduce-input-and-output"><a href="#Part1-Map-Reduce-input-and-output" class="headerlink" title="Part1 Map/Reduce input and output"></a>Part1 Map/Reduce input and output</h4><p>该部分需要我们完成doReduce和doMap这两个函数。mapreduce论文图一给出了map/reduce的基本工作流程。这一部分需要我们完成读取分割之后的文件里的内容，然后调用用户写好的map函数处理读取到的文件内容，并以{key,value}对储存在中间文件中，中间文件的文件名须调用reduceName（）生成。关于读取输入文件以及生成中间文件，论文里提到了两点： </p>
+<h4 id="Lab1-共有五个部分-需要阅读MapReduce的原始论文。"><a href="#Lab1-共有五个部分-需要阅读MapReduce的原始论文。" class="headerlink" title="Lab1 共有五个部分,需要阅读MapReduce的原始论文。"></a>Lab1 共有五个部分,需要阅读MapReduce的<a href="/mapreduce.pdf">原始论文</a>。</h4><p>论文不是很难理解，mapreduce原理很简单，感觉类似java 7的fork/join框架。我想要实现这样一个可以用于生产环境的系统更多是关于工程方面的问题。在这里想感慨一下，前几日参加阿里的宣讲会，一学长给我介绍了一下阿里的四代架构，貌似是04的第一代架构还是很原始的形式。那时候google已经做出了map/reduce的第一代实现了。不过今年双十一，阿里能处理的并发量已经达到12w笔交易/s了。经过十几年，中国的技术已经有了很大的进步了。</p>
+<h4 id="Part-I-Map-Reduce-input-and-output"><a href="#Part-I-Map-Reduce-input-and-output" class="headerlink" title="Part I Map/Reduce input and output"></a>Part I Map/Reduce input and output</h4><p>该部分需要我们完成doReduce和doMap这两个函数。mapreduce论文图一给出了map/reduce的基本工作流程。这一部分需要我们完成读取分割之后的文件里的内容，然后调用用户写好的map函数处理读取到的文件内容，并以{key,value}对储存在中间文件中，中间文件的文件名须调用reduceName（）生成。关于读取输入文件以及生成中间文件，论文里提到了两点： </p>
 <ul>
 <li>输入文件是由GFS管理，储存在集群服务器的本地磁盘里。而且GFS会将每个文件分割为64M大小的块，并将该块拷贝3份分别储存在不同的机器上。因此在调度分配Task时，Master会将Task分配给储存有该Task相关的文件块的Worker，已减少网络中需要传输的数据量。这点很重要，有文章指出运行在数据中心之上的分布式应用会由于底层网络资源的限制，而降低20-30%的性能。  </li>
 <li>map阶段生成的中间文件存储在本地磁盘，Master只要把中间文件的文件名告诉执行reduce任务的Worker即可。对于每个Map worker得到的临时key/value对，储存在#nReduce个中间文件里。对key值算hash取模决定放置哪个中间文件里。每个reduce worker需要读取各个map worker生成的中间文件对应着自己的那一个。</li>
 </ul>
 <p>因此对于doMap，读取inFile文件的内容，调用map方法，并对生成的keyvalue数组中每个key值计算hash值，取模。储存在对应的文件中。<a href="./common_map.go">具体实现</a><br>对于doRuduce,从Task对应的临时中间文件里读取key/value对，维护一个map[string][]string的数据结构，储存相同key值的values。然后将该数据结构里每条键值对传递给用户指定的reduce函数。将返回值作为该key值的value值，储存在输出文件里。<a href="./common_reduce.go">具体实现</a>  </p>
-<p>####Part II Sigle-worker word count<br>该部分需要我们完成reduce函数和map函数，统计文本里单词出现的次数。对于map函数，分割传入的字符串：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">words := strings.FieldsFunc(value, func(r rune) bool &#123;</div><div class="line">		return !unicode.IsLetter(r)</div><div class="line">	&#125;)</div></pre></td></tr></table></figure></p>
+<h4 id="Part-II-Sigle-worker-word-count"><a href="#Part-II-Sigle-worker-word-count" class="headerlink" title="Part II Sigle-worker word count"></a>Part II Sigle-worker word count</h4><p>该部分需要我们完成reduce函数和map函数，统计文本里单词出现的次数。对于map函数，分割传入的字符串：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">words := strings.FieldsFunc(value, func(r rune) bool &#123;</div><div class="line">		return !unicode.IsLetter(r)</div><div class="line">	&#125;)</div></pre></td></tr></table></figure></p>
 <p>对于每个word构建一个KeyValue{word,”1”},并维护一个储存KeyValue的slice。<br>对于reduce函数，因为对于每一次word的出现，我们便构建了一个KeyValue，而之前实现的doReduce会将相同key值的value储存在一个slice里传递给reduce函数，因此这里我们只slice的长度就是key出现的次数。这里要注意下，len(slice)返回的int类型，但我们写的reduce需要返回string类型。需要使用strconv.Itoa()将int转换为string类型。<a href="../main/wc.go">具体实现</a></p>
 <h4 id="Part-III-Distributing-MapReduce-tasks-and-Part-IV-Handling-worker-failures"><a href="#Part-III-Distributing-MapReduce-tasks-and-Part-IV-Handling-worker-failures" class="headerlink" title="Part III:Distributing MapReduce tasks  and Part IV:Handling worker failures"></a>Part III:Distributing MapReduce tasks  and Part IV:Handling worker failures</h4><p>在这一部分，我们需要实现master调度任务的程序。Mit 6.824实现map/reduce的基本工作流程是：</p>
 <ul>
@@ -564,7 +564,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Lab1共有五个部分-需要阅读MapReduce的原始论文。"><span class="nav-number">1.</span> <span class="nav-text">Lab1共有五个部分,需要阅读MapReduce的原始论文。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Part1-Map-Reduce-input-and-output"><span class="nav-number">2.</span> <span class="nav-text">Part1 Map/Reduce input and output</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Part-III-Distributing-MapReduce-tasks-and-Part-IV-Handling-worker-failures"><span class="nav-number">3.</span> <span class="nav-text">Part III:Distributing MapReduce tasks  and Part IV:Handling worker failures</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Part-V：Inverted-index-generation"><span class="nav-number">4.</span> <span class="nav-text">Part V：Inverted index generation</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Lab1-共有五个部分-需要阅读MapReduce的原始论文。"><span class="nav-number">1.</span> <span class="nav-text">Lab1 共有五个部分,需要阅读MapReduce的原始论文。</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Part-I-Map-Reduce-input-and-output"><span class="nav-number">2.</span> <span class="nav-text">Part I Map/Reduce input and output</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Part-II-Sigle-worker-word-count"><span class="nav-number">3.</span> <span class="nav-text">Part II Sigle-worker word count</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Part-III-Distributing-MapReduce-tasks-and-Part-IV-Handling-worker-failures"><span class="nav-number">4.</span> <span class="nav-text">Part III:Distributing MapReduce tasks  and Part IV:Handling worker failures</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Part-V：Inverted-index-generation"><span class="nav-number">5.</span> <span class="nav-text">Part V：Inverted index generation</span></a></li></ol></div>
             
 
           </div>
