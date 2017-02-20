@@ -93,7 +93,7 @@
 <meta property="og:url" content="http://yoursite.com/2017/02/19/test/index.html">
 <meta property="og:site_name" content="夏木">
 <meta property="og:description" content="这是我在学习mit分布式公开课6.824的Lab 1实现，该课程这几年改为用go实现。mit 6.824是mit关于分布式方面的课程。">
-<meta property="og:updated_time" content="2017-02-19T15:51:37.000Z">
+<meta property="og:updated_time" content="2017-02-20T01:39:11.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mit 6.825 Lab 1">
 <meta name="twitter:description" content="这是我在学习mit分布式公开课6.824的Lab 1实现，该课程这几年改为用go实现。mit 6.824是mit关于分布式方面的课程。">
@@ -356,7 +356,7 @@
       
 
       
-        <p>这是我在学习mit分布式公开课6.824的Lab 1实现，该课程这几年改为用go实现。mit 6.824是mit关于分布式方面的课程。<br><a id="more"></a></p>
+        <p>这是我在学习mit分布式公开课6.824的Lab 1实现，该课程这几年改为用go实现。mit 6.824是mit关于分布式方面的课程。<br><a id="more"></a><br>luchukun1993@gmail.com</p>
 <h4 id="Lab1共有五个部分-需要阅读MapReduce的原始论文。"><a href="#Lab1共有五个部分-需要阅读MapReduce的原始论文。" class="headerlink" title="Lab1共有五个部分,需要阅读MapReduce的原始论文。"></a>Lab1共有五个部分,需要阅读MapReduce的<a href="/mapreduce.pdf">原始论文</a>。</h4><p>论文不是很难理解，mapreduce原理很简单，感觉类似java 7的fork/join框架。我想要实现这样一个可以用于生产环境的系统更多是关于工程方面的问题。在这里想感慨一下，前几日参加阿里的宣讲会，一学长给我介绍了一下阿里的四代架构，貌似是04的第一代架构还是很原始的形式。那时候google已经做出了map/reduce的第一代实现了。不过今年双十一，阿里能处理的并发量已经达到12w笔交易/s了。经过十几年，中国的技术已经有了很大的进步了。</p>
 <h4 id="Part1-Map-Reduce-input-and-output"><a href="#Part1-Map-Reduce-input-and-output" class="headerlink" title="Part1 Map/Reduce input and output"></a>Part1 Map/Reduce input and output</h4><p>该部分需要我们完成doReduce和doMap这两个函数。mapreduce论文图一给出了map/reduce的基本工作流程。这一部分需要我们完成读取分割之后的文件里的内容，然后调用用户写好的map函数处理读取到的文件内容，并以{key,value}对储存在中间文件中，中间文件的文件名须调用reduceName（）生成。关于读取输入文件以及生成中间文件，论文里提到了两点： </p>
 <ul>
@@ -416,6 +416,22 @@
         
       
 
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/02/20/markdown-vscode/" rel="prev" title="vs code中类似github的markdown风格配置">
+                vs code中类似github的markdown风格配置 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
       
 
       
@@ -484,7 +500,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
@@ -502,7 +518,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
